@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-import json
+import jsony
 from tavily import TavilyClient
 import base64
 from PIL import Image

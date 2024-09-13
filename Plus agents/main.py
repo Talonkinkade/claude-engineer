@@ -1,84 +1,32 @@
-import os
-from coordinator import Coordinator
-from utils import print_panel, encode_image_to_base64, print_markdown
-from config import MAX_CONTINUATION_ITERATIONS, CONTINUATION_EXIT_PHRASE
 
-def main():
-    coordinator = Coordinator()
-    print_panel("Welcome to the Claude-3-Sonnet Engineer Chat with Multi-Agent Support!", "Welcome", style="bold green")
-    print("Type 'exit' to end the conversation.")
-    print("Type 'image' to include an image in your message.")
-    print("Type 'automode [number]' to enter Autonomous mode with a specific number of iterations.")
-    print("Type 'reset' to clear the conversation history.")
+diff --git a/docker/Dockerfile b/docker/Dockerfile
+index 9ce5e6e1..d2392e49 100644
+--- a/docker/Dockerfile
++++ b/docker/Dockerfile
+@@ -29,13 +29,4 @@ RUN playwright install --with-deps chromium
 
-    while True:
-        user_input = input("\nYou: ").strip()
+ ENTRYPOINT ["aider"]
 
-        if user_input.lower() == 'exit':
-            print_panel("Thank you for chatting. Goodbye!", "Goodbye", style="bold green")
-            break
+-#########################
+-FROM base AS aider
+-
+-COPY . /aider
+-RUN pip install --upgrade pip \
+-    && pip install --no-cache-dir /aider \
+-       --extra-index-url https://download.pytorch.org/whl/cpu \
+-    && rm -rf /aider
+-
+-ENTRYPOINT ["aider"]
++docker build -t aider-full --target aider-full .
+diff --git a/scripts/jekyll_build.sh b/scripts/jekyll_build.sh
+index bc41c66c..f22a1f12 100755
+--- a/scripts/jekyll_build.sh
++++ b/scripts/jekyll_build.sh
+@@ -1,4 +1,3 @@
+ #!/bin/bash
 
-        elif user_input.lower() == 'reset':
-            coordinator.reset_memory()
-            print_panel("Conversation history has been cleared.", "Reset", style="bold yellow")
-            continue
+-# Build the Docker image
+-docker build -t my-jekyll-site -f scripts/Dockerfile.jekyll .
++docker build -t my-jekyll-site -d scripts/Dockerfile.jekyll 
+\ No newline at end of file
 
-        elif user_input.lower() == 'image':
-            image_path = input("Drag and drop your image here, then press enter: ").strip().replace("'", "")
-            if os.path.isfile(image_path):
-                image_base64 = encode_image_to_base64(image_path)
-                if image_base64.startswith("Error"):
-                    print_panel(f"Error processing image: {image_base64}", "Error", style="bold red")
-                    continue
-                user_input = input("You (prompt for image): ")
-                response = coordinator.chat_with_image(user_input, image_base64)
-            else:
-                print_panel("Invalid image path. Please try again.", "Error", style="bold red")
-                continue
-
-        elif user_input.lower().startswith('automode'):
-            parts = user_input.split()
-            if len(parts) > 1 and parts[1].isdigit():
-                max_iterations = int(parts[1])
-            else:
-                max_iterations = MAX_CONTINUATION_ITERATIONS
-
-            coordinator.set_automode(True)
-            print_panel(f"Entering automode with {max_iterations} iterations. Please provide the goal of the automode.", "Automode", style="bold yellow")
-            user_input = input("You: ")
-            
-            try:
-                for i in range(max_iterations):
-                    response = coordinator.chat(user_input)
-                    print_markdown(f"Claude: {response}")
-                    
-                    if CONTINUATION_EXIT_PHRASE in response:
-                        print_panel("Automode goal achieved. Exiting automode.", "Automode Complete", style="bold green")
-                        coordinator.set_automode(False)
-                        break
-                    
-                    if not coordinator.automode:
-                        break
-                    
-                    if i < max_iterations - 1:
-                        user_input = "Continue with the next step. Or STOP by saying 'AUTOMODE_COMPLETE' if you think you've achieved the results established in the original request."
-                
-                if coordinator.automode:
-                    print_panel("Max iterations reached. Exiting automode.", "Automode", style="bold red")
-                    coordinator.set_automode(False)
-
-                print_panel("Exited automode. Returning to regular chat.", "Automode Exit", style="green")
-            
-            except KeyboardInterrupt:
-                print_panel("\nAutomode interrupted by user. Exiting automode.", "Automode", style="bold red")
-                coordinator.set_automode(False)
-
-            continue
-
-        else:
-            response = coordinator.chat(user_input)
-
-        print_markdown(f"Claude: {response}")
-
-if __name__ == "__main__":
-    main()
