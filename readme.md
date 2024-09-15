@@ -1,59 +1,55 @@
-# Math Question Generator
+# TEKS Test Question Generation Tool
 
-This project consists of a React frontend for generating math questions and a Flask backend for serving those questions.
+This project is an Educational Content Generator API that creates test questions based on TEKS (Texas Essential Knowledge and Skills) standards. It uses a Retrieval-Augmented Generation (RAG) system to generate and retrieve relevant questions.
+
+## Features
+
+- Generate various types of questions based on TEKS standards:
+  - Multiple-choice questions
+  - Short-answer questions
+  - True/false questions
+  - Drag-and-drop questions
+  - Inline choice questions
+- Validate generated questions against TEKS standards
+- Retrieve similar questions based on TEKS descriptions
+- RESTful API for easy integration with frontend applications
 
 ## Project Structure
 
 ```
 .
-├── react-math-app/     # React frontend
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── QuestionGenerator.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   └── index.css
-│   └── package.json
-└── server/             # Flask backend
-    ├── app.py
-    └── requirements.txt
+├── backend/
+│   ├── rag/
+│   │   ├── generator.py
+│   │   └── retriever.py
+│   ├── tests/
+│   │   └── test_generator.py
+│   ├── config.py
+│   ├── database.py
+│   ├── main.py
+│   ├── models.py
+│   ├── routes.py
+│   ├── schemas.py
+│   └── utils.py
+├── frontend/
+│   └── ...
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
-## Setup and Running the Application
+## Setup
 
-### Frontend (React)
-
-1. Navigate to the React app directory:
+1. Clone the repository:
    ```
-   cd react-math-app
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
+   git clone https://github.com/your-username/teks-question-generator.git
+   cd teks-question-generator
    ```
 
-3. Start the development server:
-   ```
-   npm start
-   ```
-
-   The React app will be available at `http://localhost:3000`.
-
-### Backend (Flask)
-
-1. Navigate to the server directory:
-   ```
-   cd server
-   ```
-
-2. Create a virtual environment (optional but recommended):
+2. Create a virtual environment and activate it:
    ```
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
    ```
 
 3. Install dependencies:
@@ -61,29 +57,71 @@ This project consists of a React frontend for generating math questions and a Fl
    pip install -r requirements.txt
    ```
 
-4. Start the Flask server:
+4. Set up environment variables:
+   - Create a `.env` file in the root directory
+   - Add the following variables:
+     ```
+     OPENAI_API_KEY=your_openai_api_key
+
+     DATABASE_URL=sqlite:///./test.db
+
+     ```
+
+5. Run the application:
    ```
-   python app.py
+   uvicorn backend.main:app --reload
    ```
 
-   The Flask server will be running at `http://localhost:5000`.
+## API Endpoints
 
-## Using the Application
+- `GET /`: Root endpoint
+- `POST /teks_standards/`: Create a new TEKS standard
+- `GET /teks_standards/`: Get all TEKS standards
+- `GET /teks_standards/{teks_id}`: Get a specific TEKS standard
+- `POST /questions/`: Create a new question
+- `GET /questions/`: Get all questions
+- `GET /questions/{question_id}`: Get a specific question
+- `POST /generate_question/`: Generate a new question based on TEKS standard
+- `GET /similar_questions/{teks_id}`: Get similar questions for a TEKS standard
 
-1. Open your web browser and go to `http://localhost:3000`.
-2. Use the dropdown to select a math topic (Addition, Subtraction, Multiplication, or Division).
-3. Adjust the difficulty level using the slider.
-4. Click "Generate Question" to get a new math question.
-5. Enter your answer and click "Check Answer" to see if you're correct.
+## Testing
+
+Run tests using pytest:
+
+```
+pytest backend/tests
+```
 
 ## Development
 
-- The React components are in the `react-math-app/src/components` directory.
-- The main App component is in `react-math-app/src/App.js`.
-- The Flask server code is in `server/app.py`.
+### Adding New Question Types
 
-To make changes to the frontend, edit the React files and the changes will be hot-reloaded in the browser.
+To add a new question type:
 
-To modify the backend, edit `server/app.py` and restart the Flask server to see the changes.
+1. Add a new method in the `Generator` class in `backend/rag/generator.py`.
+2. Update the `generate_question` method to include the new question type.
+3. Add corresponding test cases in `backend/tests/test_generator.py`.
+4. Update the API endpoints in `backend/routes.py` if necessary.
 
-Enjoy learning math with the Math Question Generator!
+### Improving Question Generation
+
+To improve the quality of generated questions:
+
+1. Refine the prompts used in the `Generator` class methods.
+2. Experiment with different OpenAI models or parameters.
+3. Implement additional validation checks in the `validate_question` method.
+
+## Contributing
+
+1. Fork the repository
+2. Create a new branch for your feature
+3. Make your changes and write tests
+4. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgements
+
+This project uses the OpenAI API for question generation. Make sure to comply with OpenAI's use-case policy and pricing when using this tool.

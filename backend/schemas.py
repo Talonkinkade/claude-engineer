@@ -1,69 +1,54 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from enum import Enum
 
-class QuestionType(str, Enum):
-    multiple_choice = "multiple_choice"
-    short_answer = "short_answer"
-    true_false = "true_false"
+class WizardStep1(BaseModel):
+    subject: str
+    grade_level: str
+    num_questions: int
 
-class TEKSStandardBase(BaseModel):
-    standard_code: str
-    description: str
-
-class TEKSStandardCreate(TEKSStandardBase):
-    pass
-
-class TEKSStandard(TEKSStandardBase):
+class WizardStep1Response(BaseModel):
     id: int
+    message: str
+
+class WizardStep2(BaseModel):
+    wizard_id: int
+    teks_standard: str
+    topic: str
+
+class WizardStep2Response(BaseModel):
+    message: str
+
+class GenerateQuestionsRequest(BaseModel):
+    wizard_id: int
+
+class QuestionSchema(BaseModel):
+    question: str
+    answer: str
+    type: str
+    difficulty: int
+    distractors: Optional[List[str]]
+
+class GeneratedQuestionsResponse(BaseModel):
+    questions: List[QuestionSchema]
+
+class WizardData(BaseModel):
+    id: int
+    subject: str
+    grade_level: str
+    num_questions: int
+    teks_standard: Optional[str]
+    topic: Optional[str]
 
     class Config:
         orm_mode = True
 
-class AnswerBase(BaseModel):
-    answer_text: str
-
-class AnswerCreate(AnswerBase):
-    pass
-
-class Answer(AnswerBase):
+class Question(BaseModel):
     id: int
-    question_id: int
-
-    class Config:
-        orm_mode = True
-
-class DistractorBase(BaseModel):
-    distractor_text: str
-
-class DistractorCreate(DistractorBase):
-    pass
-
-class Distractor(DistractorBase):
-    id: int
-    question_id: int
-
-    class Config:
-        orm_mode = True
-
-class QuestionBase(BaseModel):
+    wizard_id: int
     question_text: str
-    question_type: QuestionType
+    answer: str
+    question_type: str
     difficulty: int
-
-class QuestionCreate(QuestionBase):
-    teks_standard_id: int
-
-class Question(QuestionBase):
-    id: int
-    teks_standard_id: int
-    answer: Optional[Answer]
-    distractors: List[Distractor] = []
 
     class Config:
         orm_mode = True
-
-class QuestionGenerationRequest(BaseModel):
-    teks_standard_id: int
-    difficulty: int
-    question_type: QuestionType

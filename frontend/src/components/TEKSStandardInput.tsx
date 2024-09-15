@@ -1,42 +1,28 @@
 import React, { useState } from 'react';
 
 interface TEKSStandardInputProps {
-  onSubmit: (standardCode: string, description: string) => void;
+  onSubmit: (standard: string) => void;
 }
 
 const TEKSStandardInput: React.FC<TEKSStandardInputProps> = ({ onSubmit }) => {
-  const [standardCode, setStandardCode] = useState('');
-  const [description, setDescription] = useState('');
+  const [standard, setStandard] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(standardCode, description);
-    setStandardCode('');
-    setDescription('');
+    onSubmit(standard);
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="standardCode">TEKS Standard Code:</label>
-        <input
-          type="text"
-          id="standardCode"
-          value={standardCode}
-          onChange={(e) => setStandardCode(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="description">Description:</label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </div>
-      <button type="submit">Add TEKS Standard</button>
+      <label htmlFor="teks-standard">TEKS Standard:</label>
+      <input
+        type="text"
+        id="teks-standard"
+        value={standard}
+        onChange={(e) => setStandard(e.target.value)}
+        placeholder="Enter TEKS Standard"
+      />
+      <button type="submit">Set Standard</button>
     </form>
   );
 };

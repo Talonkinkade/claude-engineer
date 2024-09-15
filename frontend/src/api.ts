@@ -1,51 +1,38 @@
-import axios from 'axios';
-
 const API_BASE_URL = 'http://localhost:8000'; // Adjust this to match your backend URL
-
-export interface TEKSStandard {
-  id: number;
-  standard_code: string;
-  description: string;
-}
 
 export interface Question {
   id: number;
-  question_text: string;
-  question_type: string;
-  difficulty: number;
-  teks_standard_id: number;
-  answer?: {
-    answer_text: string;
-  };
-  distractors?: {
-    distractor_text: string;
-  }[];
+  text: string;
+  answer: string;
+  options: string[];
 }
 
-export const api = {
-  async createTEKSStandard(standardCode: string, description: string): Promise<TEKSStandard> {
-    const response = await axios.post(`${API_BASE_URL}/teks_standards/`, { standard_code: standardCode, description });
-    return response.data;
-  },
+export const generateQuestion = async (teksStandardId: number, difficulty: number, questionType: string): Promise<Question> => {
+  const response = await fetch(`${API_BASE_URL}/generate_question`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ teksStandardId, difficulty, questionType }),
+  });
 
-  async getTEKSStandards(): Promise<TEKSStandard[]> {
-    const response = await axios.get(`${API_BASE_URL}/teks_standards/`);
-    return response.data;
-  },
+  if (!response.ok) {
+    throw new Error('Failed to generate question');
+  }
 
-  async generateQuestion(teksStandardId: number, difficulty: number, questionType: string): Promise<Question> {
-    const response = await axios.post(`${API_BASE_URL}/generate_question/`, {
-      teks_standard_id: teksStandardId,
-      difficulty,
-      question_type: questionType,
-    });
-    return response.data;
-  },
-
-  async getSimilarQuestions(teksId: number, k: number = 5): Promise<Question[]> {
-    const response = await axios.get(`${API_BASE_URL}/similar_questions/${teksId}?k=${k}`);
-    return response.data;
-  },
+  return response.json();
 };
 
-export default api;
+export const setTEKSStandard = async (standard: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/set_teks_standard`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ standard }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to set TEKS standard');
+  }
+};

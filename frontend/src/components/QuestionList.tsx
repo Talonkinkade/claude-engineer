@@ -1,18 +1,5 @@
 import React from 'react';
-
-interface Question {
-  id: number;
-  question_text: string;
-  question_type: string;
-  difficulty: number;
-  teks_standard_id: number;
-  answer?: {
-    answer_text: string;
-  };
-  distractors?: {
-    distractor_text: string;
-  }[];
-}
+import { Question } from '../api';
 
 interface QuestionListProps {
   questions: Question[];
@@ -20,30 +7,27 @@ interface QuestionListProps {
 
 const QuestionList: React.FC<QuestionListProps> = ({ questions }) => {
   return (
-    <div>
+    <div className="question-list">
       <h2>Generated Questions</h2>
-      {questions.map((question) => (
-        <div key={question.id} className="question-item">
-          <h3>Question {question.id}</h3>
-          <p><strong>Text:</strong> {question.question_text}</p>
-          <p><strong>Type:</strong> {question.question_type}</p>
-          <p><strong>Difficulty:</strong> {question.difficulty}</p>
-          <p><strong>TEKS Standard ID:</strong> {question.teks_standard_id}</p>
-          {question.answer && (
-            <p><strong>Answer:</strong> {question.answer.answer_text}</p>
-          )}
-          {question.distractors && question.distractors.length > 0 && (
-            <div>
-              <strong>Distractors:</strong>
+      {questions.length === 0 ? (
+        <p>No questions generated yet.</p>
+      ) : (
+        <ul>
+          {questions.map((question, index) => (
+            <li key={index}>
+              <h3>Question {index + 1}</h3>
+              <p>{question.text}</p>
+              <h4>Options:</h4>
               <ul>
-                {question.distractors.map((distractor, index) => (
-                  <li key={index}>{distractor.distractor_text}</li>
+                {question.options.map((option, optionIndex) => (
+                  <li key={optionIndex}>{option}</li>
                 ))}
               </ul>
-            </div>
-          )}
-        </div>
-      ))}
+              <p><strong>Answer: </strong>{question.answer}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
